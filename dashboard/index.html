@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Radar — radar-2</title>
+<link rel="stylesheet" href="style.css">
+<script src="../data.js"></script>
+<script src="radar.js" defer></script>
+</head>
+<body>
+<header class="mast">
+  <div>
+    <h1>Token Radar <span class="model">radar-2</span></h1>
+    <p class="tag">Which pre-token protocol is worth farming next — and what to do about it.</p>
+    <p class="meta" id="meta">Snapshot: DefiLlama protocols, 2026-11-14. Loading…</p>
+    <p class="meta">“Records no token” means both gecko_id and symbol are null in the snapshot — never “has no token”.</p>
+  </div>
+  <div class="formula">
+    <code>implied = TVL · (TVL / $1B)<sup>e−1</sup> · M<sub>cat</sub> · nonTVL</code>
+    <span>e = <b id="expVal">0.70</b> · nonTVL clamped to [0.65, 1.45]</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="board" class="on">Board <b id="nBoard"></b></button>
+  <button data-tab="live">Already trading <b id="nLive"></b></button>
+  <button data-tab="restricted">Restricted <b id="nRestr"></b></button>
+  <button data-tab="excluded">Excluded <b id="nExcl"></b></button>
+  <button data-tab="method">Method</button>
+</nav>
+
+<section id="cats" class="cats" aria-label="Category summary"></section>
+
+<section class="controls" id="controls">
+  <input id="q" type="search" placeholder="Search name or slug…" aria-label="Search">
+  <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+  <select id="chain" aria-label="Chain"><option value="">All chains</option></select>
+  <select id="status" aria-label="Token status">
+    <option value="">Watchlist + early</option>
+    <option value="watch">Watchlist only</option>
+    <option value="early">Early (below floor) only</option>
+  </select>
+  <span class="count" id="count"></span>
+</section>
+
+<main>
+  <section id="boardPane">
+    <table id="board">
+      <thead><tr>
+        <th data-k="rank">#</th><th data-k="name">Protocol</th><th data-k="category">Category</th>
+        <th data-k="tvl_usd">TVL</th><th data-k="change_7d">7d</th><th data-k="age_years">Age</th>
+        <th data-k="implied_value_usd">Implied value</th><th data-k="m_cat">M<sub>cat</sub></th>
+        <th data-k="nontvl">nonTVL</th><th data-k="neutral_rank">Neutral rank</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="hint">Click a row for its detail view. Click a column header to sort. “Neutral rank” is the rank the row would hold if every category used the global median — a gap of 20+ places means the rank is a category effect, not a protocol effect. Rows marked ⚠ fell more than 15% in 7 days.</p>
+  </section>
+
+  <aside id="detail" aria-label="Protocol detail">
+    <h2 id="dName">Pick a protocol</h2>
+    <p class="dsub" id="dSub">Click any row on the board.</p>
+    <div id="dBody"></div>
+  </aside>
+
+  <section id="livePane" hidden>
+    <h2>Already trading — the market's own values</h2>
+    <p>These 24 protocols record a token with a market cap in the snapshot. Their values are the market's, not this model's, and they are never mixed into the ranked board. Criterion 2 asks for this separation; here it is, on its own page.</p>
+    <table id="liveTable"><thead><tr><th>Protocol</th><th>Category</th><th>TVL</th><th>Market cap</th><th>mcap / TVL</th></tr></thead><tbody id="liveRows"></tbody></table>
+  </section>
+
+  <section id="restrPane" hidden>
+    <h2>Restricted — may trade, unverified</h2>
+    <p>258 protocols record a symbol but no CoinGecko id (or the reverse in the 14 listed below them). The house rule does not count them as “records no token”, so they are never ranked as pre-token. A symbol on its own is not proof a token trades — but it is enough to keep them off the board.</p>
+    <table><thead><tr><th>Protocol</th><th>Category</th><th>TVL</th><th>Note</th></tr></thead><tbody id="restrRows"></tbody></table>
+    <h3>Token recorded, no market cap in the snapshot (14)</h3>
+    <table><thead><tr><th>Protocol</th><th>Category</th><th>TVL</th><th>Note</th></tr></thead><tbody id="restrExtraRows"></tbody></table>
+  </section>
+
+  <section id="exclPane" hidden>
+    <h2>Excluded — with reasons</h2>
+    <p>These protocols were candidates and were left out on purpose. Showing them is the proof the 40 watchlist rows were not cherry-picked: the same exclusions that built the watchlist were applied to the early pool, and the above-floor protocols the watchlist left out are listed too.</p>
+    <table><thead><tr><th>Protocol</th><th>Category</th><th>TVL</th><th>Reason</th></tr></thead><tbody id="exclRows"></tbody></table>
+  </section>
+
+  <section id="methodPane" hidden>
+    <h2>Method — radar-2, in full</h2>
+    <div id="methodBody"></div>
+  </section>
+</main>
+
+<footer>
+  <p><b>What this is not.</b> Implied value is this entry's claim, not a price. “Records no token” is what DefiLlama's record says — it is not proof a protocol has no token. The model rates launch attractiveness, not protocol quality, and the snapshot cannot tell whether a token is actually planned. No farm step claims a points programme exists; step 5 tells you to check the protocol's own page.</p>
+  <p><b>Steelman the starter.</b> radar-1 is 40 watchlist + 160 early = 200 rows with one formula, TVL × 0.25 with small growth and age terms. It is simpler, and if you only care about the top 5 by TVL it is nearly the same answer. radar-2 differs exactly here: the multiple is per-category and fitted from live-token comps, TVL is dampened by a fitted exponent, and growth and maturity are shown per row — so a young, growing protocol can outrank an old, shrinking one, and a category effect is flagged instead of hidden.</p>
+</footer>
+</body>
+</html>
